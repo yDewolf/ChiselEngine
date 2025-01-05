@@ -1,4 +1,4 @@
-use sdl2::{video::{self, gl_attr, GLContext, SwapInterval, Window}, EventPump, Sdl, VideoSubsystem};
+use sdl2::{video::{GLContext, SwapInterval, Window}, EventPump, Sdl, VideoSubsystem};
 
 pub struct Winsdl {
     pub sdl: Sdl,
