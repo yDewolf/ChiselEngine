@@ -1,6 +1,8 @@
-use std::{ffi::{CStr, CString}, ptr::{null, null_mut}};
+use std::{ffi::{CStr, CString}, fmt::format, ptr::{null, null_mut}};
 
-use gl::{types::{GLchar, GLenum, GLint, GLuint}, UseProgram};
+use gl::{types::{GLchar, GLenum, GLint, GLuint, GLvoid}, UseProgram};
+
+use crate::vertex::Vertex;
 
 
 pub struct Shader {
@@ -91,6 +93,10 @@ impl Program {
     pub fn set(&self) {
         unsafe {UseProgram(self.id);}
     }
+
+    pub fn id(&self) -> GLuint {
+        self.id
+    }
 }
 
 impl Drop for Program {
@@ -119,16 +125,16 @@ impl Vbo {
         Vbo {id}
     } 
 
-    pub fn set(&self, data: &Vec<f32>) {
+    pub fn set(&self, data: &Vec<Vertex>) {
         self.bind();
         self.data(data);
     }
 
-    fn data(&self, vertices: &Vec<f32>) {
+    fn data(&self, vertices: &Vec<Vertex>) {
         unsafe {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
-                (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                (vertices.len() * std::mem::size_of::<Vertex>()) as gl::types::GLsizeiptr,
                 vertices.as_ptr() as *const gl::types::GLvoid,
                 gl::STATIC_DRAW
             )
@@ -225,15 +231,25 @@ impl Vao {
     }
 
     fn setup(&self) {
+        let stride = std::mem::size_of::<Vertex>() as GLint;
         unsafe {
             gl::EnableVertexAttribArray(0);
             gl::VertexAttribPointer(
                 0,
                 2, 
+                gl::UNSIGNED_INT, 
+                gl::FALSE, 
+                stride,
+                null()
+            );
+            gl::EnableVertexAttribArray(1);
+            gl::VertexAttribPointer(
+                1,
+                2, 
                 gl::FLOAT, 
                 gl::FALSE, 
-                (2 * std::mem::size_of::<f32>()) as GLint, 
-                null()
+                stride,
+                std::mem::size_of::<u32>() as *mut GLvoid
             );
         }
     }
@@ -252,6 +268,24 @@ impl Vao {
     }
 }
 
+
+
+pub struct Uniform {
+    pub id: GLint
+}
+
+impl Uniform {
+    pub fn new(program_id: u32, name: &str) -> Result<Self, String> {
+        let cname: CString = CString::new(name).expect("CString::new failed!");
+        let location: GLint = unsafe {gl::GetUniformLocation(program_id, cname.as_ptr())};
+
+        if location == -1 {
+            return Err(format!("Couldn't get uniform location for {}", name));
+        }
+
+        Ok(Uniform {id: location})
+    }
+}
 
 
 fn create_white_space_cstring_with_len(len: usize) -> CString {
