@@ -1,13 +1,9 @@
 use sdl2::event::{Event, WindowEvent};
-use gl_objects::{create_program, Ibo, Uniform, Vao, Vbo};
-use transform::{Mat3, Mat4};
 
-use crate::winsdl::Winsdl;
-
-mod winsdl;
-mod gl_objects;
-mod transform;
-mod vertex;
+pub mod engine;
+use engine::graphics::opengl::winsdl::Winsdl;
+use engine::graphics::opengl::gl_objects::{create_program, Ibo, Uniform, Vao, Vbo};
+use engine::graphics::transform::{Mat3, Mat4};
 
 
 fn main() {
