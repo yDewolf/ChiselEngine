@@ -11,6 +11,7 @@ uniform mat4 u_projection_matrix;
 
 void main() {
     vec4 uv = u_projection_matrix * u_view_matrix * u_model_matrix[Entity_id] * vec4(Position, 1.0);
+    // vec4 uv = vec4(Position, 1.0) * u_model_matrix[Entity_id] * u_view_matrix * u_projection_matrix;
 
     if (u_resolution.x > u_resolution.y) {
         uv.x *= u_resolution.y / u_resolution.x;

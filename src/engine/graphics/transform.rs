@@ -1,4 +1,44 @@
 
+#[derive(Clone)]
+#[repr(C)]
+pub struct Vector2([f32 ; 2]);
+
+impl Vector2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        return Vector2([x, y]);
+    }
+
+    pub fn x(&self) -> f32 {
+        self.0[0]
+    }
+
+    pub fn y(&self) -> f32 {
+        self.0[1]
+    }
+}
+
+#[derive(Clone)]
+#[repr(C)]
+pub struct Vector3([f32 ; 3]);
+
+impl Vector3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Vector3([x, y, z])
+    }
+
+    pub fn x(&self) -> f32 {
+        self.0[0]
+    }
+
+    pub fn y(&self) -> f32 {
+        self.0[1]
+    }
+
+    pub fn z(&self) -> f32 {
+        self.0[2]
+    }
+}
+
 #[repr(C)]
 pub struct Mat3([f32 ; 9]);
 
