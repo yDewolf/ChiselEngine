@@ -1,6 +1,6 @@
 use std::{fs::File, io::{self, BufRead}, path::Path};
 
-use crate::engine::{geometry::vertex::Vertex, graphics::transform::Vector3};
+use crate::engine::{geometry::mesh::Vertex, graphics::transform::Vector3};
 
 pub fn read_obj_file(file_path: &str) -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices: Vec<Vertex> = Vec::new();
@@ -23,7 +23,7 @@ pub fn read_obj_file(file_path: &str) -> (Vec<Vertex>, Vec<u32>) {
                     splitted[3].parse::<f32>().unwrap()
                 );
 
-                vertices.push(Vertex::from_vec3(pos));
+                vertices.push(Vertex::from_vec3(pos, Vector3::new(0.0, 1.0, 0.0)));
             }
             // Indices
             if line.starts_with('f') {{

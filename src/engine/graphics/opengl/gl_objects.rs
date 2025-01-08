@@ -1,8 +1,8 @@
-use std::{ffi::{CStr, CString}, fmt::format, ptr::{null, null_mut}};
+use std::{ffi::{CStr, CString}, ptr::{null, null_mut}};
 
 use gl::{types::{GLchar, GLenum, GLint, GLuint, GLvoid}, UseProgram};
 
-use crate::engine::geometry::vertex::Vertex;
+use crate::engine::geometry::mesh::Vertex;
 
 
 pub struct Shader {
@@ -233,23 +233,36 @@ impl Vao {
     fn setup(&self) {
         let stride = std::mem::size_of::<Vertex>() as GLint;
         unsafe {
+            // Setup memory layout
+            // Entity id
             gl::EnableVertexAttribArray(0);
             gl::VertexAttribPointer(
                 0,
-                2, 
+                1, 
                 gl::UNSIGNED_INT, 
                 gl::FALSE, 
                 stride,
                 null()
             );
+            // Position
             gl::EnableVertexAttribArray(1);
             gl::VertexAttribPointer(
                 1,
-                2, 
+                3, 
                 gl::FLOAT, 
                 gl::FALSE, 
                 stride,
-                std::mem::size_of::<u32>() as *mut GLvoid
+                (std::mem::size_of::<u32>()) as *mut GLvoid
+            );
+            // Normal
+            gl::EnableVertexAttribArray(2);
+            gl::VertexAttribPointer(
+                2,
+                3, 
+                gl::FLOAT, 
+                gl::FALSE, 
+                stride,
+                ((std::mem::size_of::<f32>() * 3) + std::mem::size_of::<u32>()) as *mut GLvoid
             );
         }
     }
