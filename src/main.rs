@@ -5,14 +5,13 @@ pub mod utils;
 
 use engine::graphics::opengl::winsdl::Winsdl;
 use engine::graphics::opengl::gl_objects::{create_program, Uniform};
-use engine::graphics::transform::Mat4;
+use engine::graphics::transform::{Mat4, Vector3};
 // use engine::builtin::nodes;
 
-use engine::geometry::mesh::Mesh;
+use engine::geometry::mesh::{Mesh, Texture, Vertex};
 
 fn main() {
     std::env::set_var("RUST_BACKTRACE", "1");
-    
     let mut winsdl = Winsdl::new(800, 600).unwrap();
     
     let mut max_uniforms: gl::types::GLint = 0;
@@ -21,10 +20,14 @@ fn main() {
     
     let program = create_program().unwrap();
     program.set();
-    
-    let mesh_path = "assets/test_models/Cube.obj";
+    unsafe {
+        gl::Enable(gl::CULL_FACE);
+        gl::CullFace(gl::BACK);
+    };
+
+    let mesh_path = "assets/test_models/cube1.obj";
     let mesh = Mesh::from_obj_file(&mesh_path);
-    println!("{}", mesh.indices().len());
+    println!("Indices Length: {}", mesh.indices().len());
 
     let mut model_matrix: Mat4 = Mat4::new();
     let mut view_matrix: Mat4 = Mat4::new();
@@ -66,14 +69,14 @@ fn main() {
         unsafe {
             gl::Clear(gl::COLOR_BUFFER_BIT);
             
-            model_matrix.rotate_y(0.05);
+            model_matrix.rotate_y(0.025);
 
             gl::UniformMatrix4fv(u_model_matrix.id, 1, gl::TRUE, model_matrix.ptr());
             gl::UniformMatrix4fv(u_view_matrix.id, 1, gl::TRUE, view_matrix.ptr());
 
             mesh.draw();
 
-            // gl::ClearColor(0.0, 0.0, 0.1, 1.0);
+            gl::ClearColor(0.0, 0.0, 0.1, 1.0);
         }
 
 
@@ -81,5 +84,3 @@ fn main() {
     }
 
 }
-
-

@@ -1,5 +1,5 @@
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vector2([f32 ; 2]);
 
@@ -17,9 +17,77 @@ impl Vector2 {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vector3([f32 ; 3]);
+
+impl std::ops::Add for Vector3{
+    type Output = Self;
+
+    fn add(self, vec: Vector3) -> Self {
+        return Vector3::new(
+            self.x() + vec.x(),
+            self.y() + vec.y(),
+            self.z() + vec.z()
+        )
+    }
+}
+
+impl std::ops::Sub for Vector3{
+    type Output = Self;
+
+    fn sub(self, vec: Vector3) -> Self {
+        return Vector3::new(
+            self.x() - vec.x(),
+            self.y() - vec.y(),
+            self.z() - vec.z()
+        )
+    }
+}
+
+impl std::ops::Div<f32> for Vector3{
+    type Output = Self;
+
+    fn div(self, divisor: f32) -> Self {
+        return Vector3::new(
+            self.x() / divisor,
+            self.y() / divisor,
+            self.z() / divisor
+        )
+    }
+}
+
+impl std::ops::Mul<f32> for Vector3{
+    type Output = Self;
+
+    fn mul(self, multiplier: f32) -> Self {
+        return Vector3::new(
+            self.x() * multiplier,
+            self.y() * multiplier,
+            self.z() * multiplier
+        )
+    }
+}
+
+impl std::ops::Mul for Vector3{
+    type Output = Self;
+
+    fn mul(self, vec: Vector3) -> Self {
+        return Vector3::new(
+            self.x() * vec.x(),
+            self.y() * vec.y(),
+            self.z() * vec.z()
+        )
+    }
+}
+
+
+impl std::fmt::Display for Vector3 {
+
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "({}, {}, {})", self.x(), self.y(), self.z())
+    }
+}
 
 impl Vector3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
@@ -36,6 +104,28 @@ impl Vector3 {
 
     pub fn z(&self) -> f32 {
         self.0[2]
+    }
+
+    pub fn normalized(&self) -> Vector3 {
+        let length: f32 = self.length();// glm::sqrt(glm::pow(self.x(), 2.0) + glm::pow(self.y(), 2.0) + glm::pow(self.z(), 2.0));
+        
+        Vector3::new(
+            self.x() / length,
+            self.y() / length,
+            self.z() / length
+        )
+    }
+
+    pub fn cross(&self, vec: &Vector3) -> Vector3 {
+        Vector3::new(
+            self .y() * vec.z() - self.z() * vec.y(),
+            self.z() * vec.x() - self.x() * vec.z(),
+            self.x() * vec.y() - self.y() * vec.x()
+        )
+    }
+    
+    pub fn length(&self) -> f32 {
+        glm::sqrt(self.x() * self.x() + self.y() * self.y() + self.z() * self.z())
     }
 }
 

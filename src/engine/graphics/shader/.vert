@@ -6,7 +6,7 @@ layout (location = 2) in vec3 aNormal;
 
 uniform vec2 u_resolution;
 
-uniform mat4 u_model_matrix[1];
+uniform mat4 u_model_matrix[3];
 uniform mat4 u_view_matrix;
 uniform mat4 u_projection_matrix;
 

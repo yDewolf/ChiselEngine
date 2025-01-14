@@ -1,9 +1,9 @@
 use crate::engine::graphics::transform::{Vector2, Vector3};
 use crate::engine::graphics::opengl::gl_objects::{Ibo, Vao, Vbo};
 
-use crate::utils::file_utils;
+use crate::utils::{file_utils, obj_parser};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct Vertex {
     pub entity_id: u32,
@@ -32,8 +32,16 @@ impl Vertex {
         }
     }
 
-    pub fn set_normal(mut self, normal: Vector3) {
+    pub fn set_normal(&mut self, normal: Vector3) {
         self.normal = normal;
+    }
+
+    pub fn add_normal(&mut self, normal: Vector3) {
+        self.normal = self.normal + normal;
+    }
+
+    pub fn normalize_normal(&mut self) {
+        self.normal = self.normal.normalized();
     }
 }
 
@@ -42,6 +50,7 @@ pub struct Texture {
 }
 
 // Mesh only, not instance
+
 #[allow(dead_code)]
 pub struct Mesh {
     vertices: Vec<Vertex>,
@@ -57,16 +66,6 @@ pub struct Mesh {
 
 impl Mesh {
     pub fn setup_mesh(mut vertices: Vec<Vertex>, indices: Vec<u32>, textures: Vec<Texture>) -> Self {
-        let normals = calculate_normals(&vertices, &indices);
-        for idx in 0..indices.len() {
-            let normal_idx = idx / 3;
-            if normal_idx >= normals.len() {
-                break;
-            }
-
-            vertices[indices[idx] as usize].normal = normals[normal_idx].clone();
-        }
-        
         let vbo = Vbo::gen();
         vbo.set(&vertices);
 
@@ -76,9 +75,9 @@ impl Mesh {
         let ibo = Ibo::gen();
         ibo.set(&indices);
 
-        unsafe {
-            gl::BindVertexArray(vao.id);
-        }
+        // unsafe {
+        //     gl::BindVertexArray(vao.id);
+        // }
 
         Mesh {
             vertices,
@@ -91,17 +90,20 @@ impl Mesh {
     }
 
     pub fn from_obj_file(file_path: &str) -> Self {
-        let (vertices, indices) = file_utils::read_obj_file(file_path);
+        // let (vertices, indices) = file_utils::read_obj_file(file_path);
+        let obj = obj_parser::Obj::from_path(file_path);
+
         let textures: Vec<Texture> = Vec::new();
 
-        return Mesh::setup_mesh(vertices, indices, textures)
+        return Mesh::setup_mesh(obj.vertices, obj.indices, textures)
     }
 
     
     pub fn draw(&self) {
         unsafe {
             // gl::BindVertexArray(self.vao.id);
-            gl::DrawElements(gl::TRIANGLES, self.indices().len() as i32, gl::UNSIGNED_INT, 0 as *const _);
+            gl::DrawElements(gl::TRIANGLES, (self.indices().len()) as i32, gl::UNSIGNED_INT, 0 as *const _);
+            gl::DrawElements(gl::LINE_STRIP, (self.indices().len()) as i32, gl::UNSIGNED_INT, 0 as *const _);
             // gl::BindVertexArray(0);
         }
     }
@@ -115,24 +117,31 @@ impl Mesh {
     }
 }
 
-pub fn calculate_normals(vertices: &Vec<Vertex>, indices: &Vec<u32>) -> Vec<Vector3> {
+pub fn update_normals(mut vertices: Vec<Vertex>, indices: &Vec<u32>) -> Vec<Vertex> {
     let mut normals: Vec<Vector3> = Vec::new();
+
     for offset in 0..indices.len() / 3 {
-        if offset + 1 >= vertices.len() {
-            break;
-        }
+        let vert_1 = vertices[indices[offset + 1] as usize].position.clone(); //- vertices[indices[offset] as usize].position.clone();
+        let vert_2 = vertices[indices[offset + 2] as usize].position.clone(); //- vertices[indices[offset] as usize].position.clone();
 
-        let vert_1 = &vertices[offset];
-        let vert_2 = &vertices[offset + 1];
+        let vert_normal = vert_1.cross(&vert_2);
 
-        let vert_normal = Vector3::new(
-            vert_1.position.y() * vert_2.position.z() - vert_1.position.z() * vert_2.position.y(),
-            vert_1.position.z() * vert_2.position.x() - vert_1.position.x() * vert_2.position.z(),
-            vert_1.position.x() * vert_2.position.y() - vert_1.position.y() * vert_2.position.x()
-        );
+        vertices[indices[offset] as usize].normal = vertices[indices[offset] as usize].normal.clone() + vert_normal.clone();
+        vertices[indices[offset + 1] as usize].normal = vertices[indices[offset + 1] as usize].normal.clone() + vert_normal.clone();
+        vertices[indices[offset + 2] as usize].normal = vertices[indices[offset + 2] as usize].normal.clone() + vert_normal.clone();
+
+        // vertices[indices[offset] as usize].normal = vert_normal.clone();
+        // vertices[indices[offset + 1] as usize].normal = vert_normal.clone();
+        // vertices[indices[offset + 2] as usize].normal = vert_normal.clone();
 
         normals.push(vert_normal);
     }
 
-    return normals
+    for idx in 0..vertices.len() {
+        vertices[idx].normal = vertices[idx].normal.normalized();
+    }
+
+    println!("{}", normals.len());
+
+    return vertices
 }

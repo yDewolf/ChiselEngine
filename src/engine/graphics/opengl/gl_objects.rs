@@ -232,6 +232,7 @@ impl Vao {
 
     fn setup(&self) {
         let stride = std::mem::size_of::<Vertex>() as GLint;
+        println!("stride: {}", stride);
         unsafe {
             // Setup memory layout
             // Entity id
