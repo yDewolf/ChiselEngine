@@ -35,7 +35,7 @@ impl Obj {
             let splitted: Vec<&str> = line.split(' ').collect();
             match splitted[0] {
                 "v" => {
-                    vertex_pool.push( Vertex::from_pos(
+                    vertex_pool.push(Vertex::from_pos(
                             splitted[1].parse::<f32>().unwrap(),
                             splitted[2].parse::<f32>().unwrap(), 
                             splitted[3].parse::<f32>().unwrap()
@@ -54,7 +54,9 @@ impl Obj {
                 }
 
                 "f" => {
-                    for idx in 1..splitted.len() {
+                    for idx in 1..4 {
+                        // Read inverse
+                        // let idx = splitted.len() - idx;
                         if splitted[idx].contains("//") {
                             let slice: Vec<&str> = splitted[idx].split("//").collect();
 
@@ -67,8 +69,9 @@ impl Obj {
 
                         } else if splitted[idx].contains("/") {
                             
+
                         } else {
-                            let vert_idx = splitted[idx].parse::<u32>().unwrap();
+                            let vert_idx = splitted[idx].parse::<u32>().unwrap() - 1;
 
                             indices.push(vert_idx);
                         }

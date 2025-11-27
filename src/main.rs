@@ -25,8 +25,8 @@ fn main() {
         gl::CullFace(gl::BACK);
     };
 
-    let mesh_path = "assets/test_models/cube1.obj";
-    let mesh = Mesh::from_obj_file(&mesh_path);
+    let mesh_path = "assets/test_models/cube3.obj";
+    let mut mesh = Mesh::from_obj_file(&mesh_path);
     println!("Indices Length: {}", mesh.indices().len());
 
     let mut model_matrix: Mat4 = Mat4::new();
@@ -78,7 +78,6 @@ fn main() {
 
             gl::ClearColor(0.0, 0.0, 0.1, 1.0);
         }
-
 
         winsdl.window.gl_swap_window();
     }

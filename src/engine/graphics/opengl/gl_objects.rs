@@ -118,7 +118,7 @@ impl Drop for Vbo {
 }
 
 impl Vbo {
-    pub fn gen() -> Self {
+    pub fn generate() -> Self {
         let mut id: GLuint = 0;
         unsafe {gl::GenBuffers(1, &mut id);}
 
@@ -168,7 +168,7 @@ impl Drop for Ibo {
 }
 
 impl Ibo {
-    pub fn gen() -> Self {
+    pub fn generate() -> Self {
         let mut id: GLuint = 0;
         unsafe {gl::GenBuffers(1, &mut id);}
 
@@ -218,7 +218,7 @@ impl Drop for Vao {
 }
 
 impl Vao {
-    pub fn gen() -> Self {
+    pub fn generate() -> Self {
         let mut id: GLuint = 0;
         unsafe {gl::GenVertexArrays(1, &mut id);}
 
@@ -265,6 +265,16 @@ impl Vao {
                 stride,
                 ((std::mem::size_of::<f32>() * 3) + std::mem::size_of::<u32>()) as *mut GLvoid
             );
+
+            // gl::EnableVertexAttribArray(3);
+            // gl::VertexAttribPointer(
+            //     3,
+            //     2, 
+            //     gl::UNSIGNED_INT, 
+            //     gl::FALSE, 
+            //     stride,
+            //     ((std::mem::size_of::<f32>() * 3) + (std::mem::size_of::<f32>() * 3) + std::mem::size_of::<u32>()) as *mut GLvoid
+            // );
         }
     }
 

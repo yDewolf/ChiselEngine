@@ -1,7 +1,7 @@
 use crate::engine::graphics::transform::{Vector2, Vector3};
 use crate::engine::graphics::opengl::gl_objects::{Ibo, Vao, Vbo};
 
-use crate::utils::{file_utils, obj_parser};
+use crate::utils::{obj_parser};
 
 #[derive(Clone, Copy)]
 #[repr(C)]
@@ -55,6 +55,7 @@ pub struct Texture {
 pub struct Mesh {
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
+    indice_len: usize,
 
     textures: Vec<Texture>, // Will be used later
     
@@ -66,13 +67,20 @@ pub struct Mesh {
 
 impl Mesh {
     pub fn setup_mesh(mut vertices: Vec<Vertex>, indices: Vec<u32>, textures: Vec<Texture>) -> Self {
-        let vbo = Vbo::gen();
-        vbo.set(&vertices);
+        // let vert = update_normals(vertices, &indices);
+        let vert = vertices;
+        
+        for i in 0..indices.len() / 3 {
+            println!("{}, {}, {}", indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2]);
+        }
 
-        let vao = Vao::gen();
+        let vbo = Vbo::generate();
+        vbo.set(&vert);
+
+        let vao = Vao::generate();
         vao.set();
 
-        let ibo = Ibo::gen();
+        let ibo = Ibo::generate();
         ibo.set(&indices);
 
         // unsafe {
@@ -80,12 +88,13 @@ impl Mesh {
         // }
 
         Mesh {
-            vertices,
+            vertices: vert,
+            indice_len: indices.len() / 2,
             indices,
             textures,
             vbo,
             vao,
-            ibo
+            ibo,
         }
     }
 
@@ -99,11 +108,15 @@ impl Mesh {
     }
 
     
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
+        // self.indice_len += 1;
+        // if self.indice_len > self.indices().len() {
+        //     self.indice_len = 0;
+        // }
         unsafe {
             // gl::BindVertexArray(self.vao.id);
-            gl::DrawElements(gl::TRIANGLES, (self.indices().len()) as i32, gl::UNSIGNED_INT, 0 as *const _);
-            gl::DrawElements(gl::LINE_STRIP, (self.indices().len()) as i32, gl::UNSIGNED_INT, 0 as *const _);
+            gl::DrawElements(gl::TRIANGLES, (self.indice_len) as i32, gl::UNSIGNED_INT, 0 as *const _);
+            gl::DrawElements(gl::LINE_STRIP, (self.indice_len) as i32, gl::UNSIGNED_INT, 0 as *const _);
             // gl::BindVertexArray(0);
         }
     }
@@ -142,6 +155,7 @@ pub fn update_normals(mut vertices: Vec<Vertex>, indices: &Vec<u32>) -> Vec<Vert
     }
 
     println!("{}", normals.len());
+    // println!("{:?}", normals);
 
     return vertices
 }

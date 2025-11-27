@@ -17,7 +17,7 @@ impl Vector2 {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 #[repr(C)]
 pub struct Vector3([f32 ; 3]);
 
